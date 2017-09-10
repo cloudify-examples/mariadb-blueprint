@@ -26,8 +26,8 @@ inputs:
       The username of the agent running on the instance created from the image.
     default: ec2-user
 
-  mysql_password:
-    default: mysql_password
+  new_password:
+    default: new_password
 
 dsl_definitions:
 
@@ -48,7 +48,7 @@ node_templates:
         configure:
           implementation: scripts/configure.py
           inputs:
-            password: { get_input: mysql_password }
+            new_password: { get_input: new_password }
     relationships:
       - type: cloudify.relationships.contained_in
         target: host
@@ -95,6 +95,14 @@ node_templates:
         - ip_protocol: tcp
           from_port: 3306
           to_port: 3306
+          cidr_ip: 0.0.0.0/0
+        - ip_protocol: tcp
+          from_port: 4444
+          to_port: 4444
+          cidr_ip: 0.0.0.0/0
+        - ip_protocol: tcp
+          from_port: 4567
+          to_port: 4568
           cidr_ip: 0.0.0.0/0
     relationships:
       - type: cloudify.aws.relationships.security_group_contained_in_vpc

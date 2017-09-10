@@ -13,9 +13,10 @@ except ImportError:
 
 if __name__ == '__main__':
 
-    password = str()
-    new_password = inputs.get('password', password)
-    db = mariadb.connect(user='root', passwd=password, db='mysql')
+    old_password = inputs.get('old_password', str())
+    new_password = inputs.get('new_password', old_password)
+
+    db = mariadb.connect(user='root', passwd=old_password, db='mysql')
     cur = db.cursor()
     cur.execute("UPDATE mysql.user SET Password = PASSWORD('{0}') WHERE User = 'root'".format(new_password))
     cur.execute("DROP USER ''@'localhost'")
