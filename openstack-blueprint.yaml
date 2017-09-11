@@ -137,3 +137,9 @@ node_templates:
       openstack_config: *openstack_config
       floatingip:
         floating_network_name: { get_secret: external_network_name }
+
+outputs:
+
+  ip:
+    description: Public IP Address
+    value: { get_attribute: [ ip, floating_ip_address ] }

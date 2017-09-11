@@ -133,3 +133,9 @@ node_templates:
       use_external_resource: true
       resource_id: { get_secret: vpc_id }
       cidr_block: N/A
+
+outputs:
+
+  ip:
+    description: Public IP Address
+    value: { get_attribute: [ ip, aws_resource_id ] }
