@@ -29,6 +29,11 @@ inputs:
   new_password:
     default: new_password
 
+  users:
+    default:
+      demo:
+        privileges: [ALL PRIVILEGES]
+
 dsl_definitions:
 
     aws_config: &aws_config
@@ -49,9 +54,36 @@ node_templates:
           implementation: scripts/configure.py
           inputs:
             new_password: { get_input: new_password }
+            users: { get_input: users }
+        start:
+          implementation: scripts/start.py
+          inputs:
+            cluster_addresses: { get_attribute: [ cluster, cluster_addresses ] }
+            master:  { get_attribute: [ cluster, master ] }
     relationships:
-      - type: cloudify.relationships.contained_in
-        target: host
+    - type: cloudify.relationships.contained_in
+      target: host
+    - type: cloudify.relationships.depends_on
+      target: cluster
+      source_interfaces:
+        cloudify.interfaces.relationship_lifecycle:
+          postconfigure:
+            implementation: scripts/cluster.py
+      properties:
+        connection_type: all_to_one
+
+  cluster:
+    type: cloudify.nodes.Root
+    interfaces:
+      cloudify.interfaces.lifecycle:
+        create:
+          implementation: scripts/cluster.py
+          executor: central_deployment_agent
+    relationships:
+    - type: cloudify.relationships.depends_on
+      target: host
+      properties:
+        connection_type: all_to_all
 
   host:
     type: cloudify.aws.nodes.Instance
@@ -65,14 +97,14 @@ node_templates:
       image_id: { get_input: ami }
       instance_type: { get_input: instance_type }
     relationships:
-      - type: cloudify.aws.relationships.instance_connected_to_subnet
-        target: public_subnet
-      - type: cloudify.aws.relationships.instance_connected_to_security_group
-        target: security_group
-      - type: cloudify.aws.relationships.instance_connected_to_elastic_ip
-        target: ip
-      - type: cloudify.relationships.depends_on
-        target: cloudify_host_cloud_config
+    - type: cloudify.aws.relationships.instance_connected_to_subnet
+      target: public_subnet
+    - type: cloudify.aws.relationships.instance_connected_to_security_group
+      target: security_group
+    - type: cloudify.aws.relationships.instance_connected_to_elastic_ip
+      target: ip
+    - type: cloudify.relationships.depends_on
+      target: cloudify_host_cloud_config
     interfaces:
       cloudify.interfaces.lifecycle:
         create:
@@ -82,31 +114,32 @@ node_templates:
               placement: { get_secret: availability_zone }
               user_data: { get_attribute: [ cloudify_host_cloud_config, cloud_config ] }
 
+
   security_group:
     type: cloudify.aws.nodes.SecurityGroup
     properties:
       aws_config: *aws_config
       description: Security group for Kubernetes Cluster
       rules:
-        - ip_protocol: tcp
-          from_port: 22
-          to_port: 22
-          cidr_ip: 0.0.0.0/0
-        - ip_protocol: tcp
-          from_port: 3306
-          to_port: 3306
-          cidr_ip: 0.0.0.0/0
-        - ip_protocol: tcp
-          from_port: 4444
-          to_port: 4444
-          cidr_ip: 0.0.0.0/0
-        - ip_protocol: tcp
-          from_port: 4567
-          to_port: 4568
-          cidr_ip: 0.0.0.0/0
+      - ip_protocol: tcp
+        from_port: 22
+        to_port: 22
+        cidr_ip: 0.0.0.0/0
+      - ip_protocol: tcp
+        from_port: 3306
+        to_port: 3306
+        cidr_ip: 0.0.0.0/0
+      - ip_protocol: tcp
+        from_port: 4444
+        to_port: 4444
+        cidr_ip: 0.0.0.0/0
+      - ip_protocol: tcp
+        from_port: 4567
+        to_port: 4568
+        cidr_ip: 0.0.0.0/0
     relationships:
-      - type: cloudify.aws.relationships.security_group_contained_in_vpc
-        target: vpc
+    - type: cloudify.aws.relationships.security_group_contained_in_vpc
+      target: vpc
 
   ip:
     type: cloudify.aws.nodes.ElasticIP
@@ -123,8 +156,8 @@ node_templates:
       cidr_block: N/A
       availability_zone: N/A
     relationships:
-      - type: cloudify.aws.relationships.subnet_contained_in_vpc
-        target: vpc
+    - type: cloudify.aws.relationships.subnet_contained_in_vpc
+      target: vpc
 
   vpc:
     type: cloudify.aws.nodes.VPC
@@ -139,3 +172,20 @@ outputs:
   ip:
     description: Public IP Address
     value: { get_attribute: [ ip, aws_resource_id ] }
+
+groups:
+
+  app_group:
+    members:
+    - mysql
+    - host
+    - ip
+
+policies:
+
+  app_group_policy:
+    type: cloudify.policies.scaling
+    properties:
+      default_instances:  1
+    targets: [app_group]
+
