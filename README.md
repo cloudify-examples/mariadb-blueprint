@@ -23,7 +23,7 @@ When it is finished, you will be able to play with the wine store application.
 
 ```shell
 $ cfy install \
-    https://github.com/cloudify-examples/mariadb-blueprint/archive/4.1.1.zip \
+    https://github.com/cloudify-examples/mariadb-blueprint/archive/master.zip \
     -b mariadb \
     -n aws-blueprint.yaml
 ```
@@ -33,7 +33,7 @@ $ cfy install \
 
 ```shell
 $ cfy install \
-    https://github.com/cloudify-examples/mariadb-blueprint/archive/4.1.1.zip \
+    https://github.com/cloudify-examples/mariadb-blueprint/archive/master.zip \
     -b mariadb \
     -n azure-blueprint.yaml
 ```
@@ -43,7 +43,7 @@ $ cfy install \
 
 ```shell
 $ cfy install \
-    https://github.com/cloudify-examples/mariadb-blueprint/archive/4.1.1.zip \
+    https://github.com/cloudify-examples/mariadb-blueprint/archive/master.zip \
     -b mariadb \
     -n openstack-blueprint.yaml
 ```
@@ -52,7 +52,7 @@ $ cfy install \
 
 ```shell
 $ cfy install \
-    https://github.com/cloudify-examples/mariadb-blueprint/archive/4.1.1.zip \
+    https://github.com/cloudify-examples/mariadb-blueprint/archive/master.zip \
     -b mariadb \
     -n gcp-blueprint.yaml
 ```
