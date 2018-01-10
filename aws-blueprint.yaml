@@ -155,7 +155,7 @@ node_templates:
       resource_config:
         kwargs:
           Description: Created by mariadb-blueprint aws-blueprint.yaml.
-          SubnetId: { get_input: public_subnet_id }
+          SubnetId: { get_property: [ private_subnet, resource_id ] }
     relationships:
       - type: cloudify.relationships.depends_on
         target: private_subnet
@@ -167,7 +167,7 @@ node_templates:
           inputs:
             resource_config:
               Description: Created by mariadb-blueprint aws-blueprint.yaml.
-              SubnetId: { get_input: public_subnet_id }
+              SubnetId: { get_property: [ private_subnet, resource_id ] }
               Groups:
               - { get_attribute: [ security_group, aws_resource_id ] }
 
