@@ -222,10 +222,6 @@ outputs:
     description: Cluster Addresses
     value: { get_attribute: [ cluster, cluster_addresses ] }
 
-  master:
-    description: master node ip
-    value: { get_attribute: [ cluster, master ] }
-
 groups:
 
   app_group:
