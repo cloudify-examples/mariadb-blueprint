@@ -95,7 +95,7 @@ node_templates:
               MySQLCollector:
                 enabled: true
                 hosts:
-                - { concat: [ 'demo:', { get_input: new_password }, '@',  { get_attribute: [ SELF, ip ] }, ':3306/None' ] }
+                - { concat: [ 'demo:', { get_input: new_password }, '@',  { get_attribute: [ host, ip ] }, ':3306/None' ] }
                 innodb: true
                 master: true
                 slave: true
