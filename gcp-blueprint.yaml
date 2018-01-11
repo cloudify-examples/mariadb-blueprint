@@ -119,6 +119,25 @@ node_templates:
           inputs:
             cluster_addresses: { get_attribute: [ cluster, cluster_addresses ] }
             master:  { get_attribute: [ cluster, master ] }
+      cloudify.interfaces.monitoring:
+        start:
+          implementation: diamond.diamond_agent.tasks.add_collectors
+          inputs:
+            collectors_config:
+              MySQLCollector:
+                enabled: true
+                hosts:
+                - { concat: [ 'demo:', { get_input: new_password }, '@',  { get_attribute: [ SELF, ip ] }, ':3306/None' ] }
+                innodb: true
+                master: true
+                slave: true
+              CPUCollector: {}
+              MemoryCollector: {}
+              LoadAverageCollector: {}
+              DiskUsageCollector:
+                config:
+                  devices: x?vd[a-z]+[0-9]*$
+              NetworkCollector: {}
     relationships:
     - type: cloudify.relationships.contained_in
       target: host
@@ -189,6 +208,16 @@ node_templates:
             user: { get_input: agent_user }
             ssh_keys:
             - { get_input: agent_key_public }
+      cloudify.interfaces.monitoring_agent:
+        install:
+          implementation: diamond.diamond_agent.tasks.install
+          inputs:
+            diamond_config:
+              default:
+                interval: 1
+        start: diamond.diamond_agent.tasks.start
+        stop: diamond.diamond_agent.tasks.stop
+        uninstall: diamond.diamond_agent.tasks.uninstall
 
   mariadb_fw:
     type: cloudify.gcp.nodes.FirewallRule
