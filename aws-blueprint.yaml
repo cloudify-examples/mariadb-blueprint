@@ -32,9 +32,9 @@ inputs:
     description: The ID of the AWS VPC that will contain the NIC and Subnet.
     default: { get_secret: vpc_id }
 
-  public_subnet_id:
+  private_subnet_id:
     description: The ID of the AWS Subnet that will contain the master_nic.
-    default: { get_secret: public_subnet_id }
+    default: { get_secret: private_subnet_id }
 
   availability_zone:
     description: The availability zone where the VM should be deployed. This is the same as that of the Public Subnet.
@@ -137,17 +137,6 @@ node_templates:
               placement: { get_input: availability_zone }
               user_data: { get_attribute: [ cloudify_host_cloud_config, cloud_config ] }
 
-  ip:
-    type: cloudify.nodes.aws.ec2.ElasticIP
-    properties:
-      resource_config:
-        kwargs:
-          Domain: 'vpc'
-      client_config: *client_config
-    relationships:
-      - type: cloudify.relationships.depends_on
-        target: nic
-
   nic:
     type: cloudify.nodes.aws.ec2.Interface
     properties:
@@ -155,10 +144,10 @@ node_templates:
       resource_config:
         kwargs:
           Description: Created by mariadb-blueprint aws-blueprint.yaml.
-          SubnetId: { get_input: public_subnet_id }
+          SubnetId: { get_input: private_subnet_id }
     relationships:
       - type: cloudify.relationships.depends_on
-        target: public_subnet
+        target: private_subnet
       - type: cloudify.relationships.depends_on
         target: security_group
     interfaces:
@@ -167,7 +156,7 @@ node_templates:
           inputs:
             resource_config:
               Description: Created by mariadb-blueprint aws-blueprint.yaml.
-              SubnetId: { get_input: public_subnet_id }
+              SubnetId: { get_input: private_subnet_id }
               Groups:
               - { get_attribute: [ security_group, aws_resource_id ] }
 
@@ -215,12 +204,12 @@ node_templates:
     - type: cloudify.relationships.depends_on
       target: vpc
 
-  public_subnet:
+  private_subnet:
     type: cloudify.nodes.aws.ec2.Subnet
     properties:
       client_config: *client_config
       use_external_resource: true
-      resource_id: { get_input: public_subnet_id }
+      resource_id: { get_input: private_subnet_id }
       resource_config:
         kwargs:
           CidrBlock: 'N/A'
@@ -241,9 +230,9 @@ node_templates:
 
 outputs:
 
-  ip:
-    description: Public IP Address
-    value: { get_attribute: [ ip, aws_resource_id ] }
+  cluster_addresses:
+    description: Cluster Addresses
+    value: { get_attribute: [ cluster, cluster_addresses ] }
 
 groups:
 
@@ -252,7 +241,6 @@ groups:
     - mysql
     - host
     - nic
-    - ip
 
 policies:
 
