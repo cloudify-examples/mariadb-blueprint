@@ -59,6 +59,9 @@ inputs:
   resource_prefix:
     default: mdb
 
+  manager_network:
+    default: default
+
 dsl_definitions:
 
   client_config: &gcp_config
@@ -86,10 +89,11 @@ node_templates:
     properties:
       gcp_config: *gcp_config
       agent_config:
+        network: { get_input: manager_network }
         install_method: remote
         user: { get_input: agent_user }
         port: 22
-        key: { get_secret: agent_key_private }
+        key: { get_input: agent_key_private }
       image_id: { get_input: image }
       instance_type: { get_input: instance_type }
       zone: { get_input: zone }

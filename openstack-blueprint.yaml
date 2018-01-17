@@ -71,6 +71,9 @@ inputs:
     type: string
     default: centos
 
+  manager_network:
+    default: default
+
 dsl_definitions:
 
   openstack_config: &openstack_config
@@ -90,10 +93,11 @@ node_templates:
     properties:
       openstack_config: *openstack_config
       agent_config:
-          user: { get_input: agent_user }
-          install_method: remote
-          port: 22
-          key: { get_input: agent_key_private }
+        network: { get_input: manager_network }
+        install_method: remote
+        user: { get_input: agent_user }
+        port: 22
+        key: { get_input: agent_key_private }
       server:
         key_name: ''
         image: ''
