@@ -107,7 +107,7 @@ node_templates:
           - Name: owner-id
             Values:
             - '057448758665'
-      client_config: *aws_config
+      client_config: *client_config
 
   nic:
     type: cloudify.nodes.aws.ec2.Interface
