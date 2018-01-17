@@ -10,6 +10,7 @@ imports:
   - http://www.getcloudify.org/spec/awssdk-plugin/1.2.0.1/plugin.yaml
   - https://github.com/cloudify-cosmo/cloudify-aws-plugin/releases/download/1.5.1.2/plugin.yaml
   - imports/cloud-config.yaml
+  - imports/database.yaml
 
 inputs:
 
@@ -48,14 +49,6 @@ inputs:
     description: The material of a public SSH key.
     default: { get_secret: agent_key_public }
 
-  new_password:
-    default: new_password
-
-  users:
-    default:
-      demo:
-        privileges: [ALL PRIVILEGES]
-
 dsl_definitions:
 
     aws_config: &aws_config
@@ -71,46 +64,8 @@ dsl_definitions:
 
 node_templates:
 
-  mysql:
-    type: cloudify.nodes.DBMS
-    interfaces:
-      cloudify.interfaces.lifecycle:
-        create:
-          implementation: scripts/create.py
-        configure:
-          implementation: scripts/configure.py
-          inputs:
-            new_password: { get_input: new_password }
-            users: { get_input: users }
-        start:
-          implementation: scripts/start.py
-          inputs:
-            cluster_addresses: { get_attribute: [ cluster, cluster_addresses ] }
-            master:  { get_attribute: [ cluster, master ] }
-    relationships:
-    - type: cloudify.relationships.contained_in
-      target: host
-    - type: cloudify.relationships.depends_on
-      target: cluster
-      source_interfaces:
-        cloudify.interfaces.relationship_lifecycle:
-          postconfigure:
-            implementation: scripts/cluster.py
-      properties:
-        connection_type: all_to_one
-
-  cluster:
+  mysql_requirements:
     type: cloudify.nodes.Root
-    interfaces:
-      cloudify.interfaces.lifecycle:
-        create:
-          implementation: scripts/cluster.py
-          executor: central_deployment_agent
-    relationships:
-    - type: cloudify.relationships.depends_on
-      target: host
-      properties:
-        connection_type: all_to_all
 
   host:
     type: cloudify.aws.nodes.Instance
