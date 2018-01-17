@@ -65,9 +65,6 @@ inputs:
     default:
       demo:
         privileges: [ALL PRIVILEGES]
-      demo:
-        host: localhost
-        privileges: [ALL PRIVILEGES]
 
 dsl_definitions:
 
