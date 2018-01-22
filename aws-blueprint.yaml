@@ -1,7 +1,7 @@
 tosca_definitions_version: cloudify_dsl_1_3
 
 description: >
-  This blueprint creates a Kubernetes Cluster.
+  This blueprint creates a MariaDB Cluster.
 
 imports:
   - http://www.getcloudify.org/spec/cloudify/4.2/types.yaml
