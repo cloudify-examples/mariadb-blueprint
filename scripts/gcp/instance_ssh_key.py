@@ -1,4 +1,3 @@
-
 import re
 from cloudify import ctx, manager
 from cloudify.state import ctx_parameters as inputs
