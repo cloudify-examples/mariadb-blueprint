@@ -75,6 +75,8 @@ node_templates:
       image_id: { get_input: ami }
       instance_type: { get_input: instance_type }
     relationships:
+    - type: cloudify.relationships.contained_in
+      target: scale_tier
     - type: cloudify.aws.relationships.instance_connected_to_eni
       target: nic
     - type: cloudify.relationships.depends_on
@@ -150,12 +152,18 @@ node_templates:
     - type: cloudify.relationships.depends_on
       target: security_group
     - type: cloudify.relationships.contained_in
-      target: aws
+      target: scale_tier
     interfaces:
       cloudify.interfaces.lifecycle:
         configure:
           inputs:
             resource_config: { get_property: [ SELF, resource_config, kwargs] }
+
+  scale_tier:
+    type: cloudify.nodes.Tier
+    relationships:
+    - type: cloudify.relationships.contained_in
+      target: aws
 
   security_group:
     type: cloudify.nodes.aws.ec2.SecurityGroup
@@ -235,12 +243,6 @@ node_templates:
             availability_zone: availability_zone
           external_resource: external
         reexecute: false
-    relationships:
-    - type: cloudify.relationships.contained_in
-      target: scale_tier
-
-  scale_tier:
-    type: cloudify.nodes.Tier
 
 outputs:
 
