@@ -163,6 +163,7 @@ node_templates:
           id: { get_input: network_deployment_name }
           outputs:
             network: network
+            private_subnet: private_subnet
             public_subnet: public_subnet
             region: region
             zone: zone
