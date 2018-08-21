@@ -86,6 +86,8 @@ node_templates:
       target: mysql_scale_group
     - type: cloudify.openstack.server_connected_to_port
       target: port
+    - type: cloudify.openstack.server_connected_to_port
+      target: port2
     - type: cloudify.relationships.depends_on
       target: cloudify_host_cloud_config
 
@@ -101,7 +103,39 @@ node_templates:
     - type: cloudify.openstack.port_connected_to_security_group
       target: security_group
 
+  port2:
+    type: cloudify.openstack.nodes.Port
+    properties:
+      openstack_config: *openstack_config
+    relationships:
+    - type: cloudify.relationships.contained_in
+      target: private_network
+    - type: cloudify.relationships.depends_on
+      target: private_subnet
+    - type: cloudify.openstack.port_connected_to_security_group
+      target: security_group
+
   public_subnet:
+    type: cloudify.openstack.nodes.Subnet
+    properties:
+      openstack_config: *openstack_config
+      use_external_resource: true
+      resource_id: { get_attribute: [ openstack, deployment, outputs, public_subnet ] }
+    relationships:
+    - type: cloudify.relationships.contained_in
+      target: public_network
+
+  public_network:
+    type: cloudify.openstack.nodes.Network
+    properties:
+      openstack_config: *openstack_config
+      use_external_resource: true
+      resource_id: { get_attribute: [ openstack, deployment, outputs, public_network ] }
+    relationships:
+    - type: cloudify.relationships.contained_in
+      target: mysql_scale_group
+
+  private_subnet:
     type: cloudify.openstack.nodes.Subnet
     properties:
       openstack_config: *openstack_config
@@ -109,9 +143,9 @@ node_templates:
       resource_id: { get_attribute: [ openstack, deployment, outputs, private_subnet ] }
     relationships:
     - type: cloudify.relationships.contained_in
-      target: public_network
+      target: private_network
 
-  public_network:
+  private_network:
     type: cloudify.openstack.nodes.Network
     properties:
       openstack_config: *openstack_config
