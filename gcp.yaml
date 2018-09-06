@@ -4,7 +4,7 @@ imports:
   - http://www.getcloudify.org/spec/cloudify/4.3/types.yaml
   - plugin:cloudify-gcp-plugin
   - plugin:cloudify-utilities-plugin
-  - imports/database.yaml
+  - imports/mariadb.yaml
 
 inputs:
 
@@ -27,9 +27,6 @@ inputs:
 
   agent_key_private:
     default: { get_secret: agent_key_private }
-
-  resource_prefix:
-    default: cfy-hw
 
   manager_network:
     default: external
@@ -62,7 +59,7 @@ dsl_definitions:
 
 node_templates:
 
-  mysql_requirements:
+  db_requirements:
     type: cloudify.nodes.Root
 
   host:
@@ -82,23 +79,7 @@ node_templates:
       block_project_ssh_keys: true
       startup_script:
         type: string
-        script:
-          concat:
-          - |
-            cat <<EOT >> /etc/yum.repos.d/mariadb.repo
-            [mariadb]
-            name = MariaDB
-            baseurl = http://yum.mariadb.org/10.1/centos7-amd64
-            gpgkey=https://yum.mariadb.org/RPM-GPG-KEY-MariaDB
-            gpgcheck=1
-            EOT
-          - |
-            chown root:root /etc/yum.repos.d/mariadb.repo
-            chmod 0444 /etc/yum.repos.d/mariadb.repo
-            yum -t -y install MariaDB-server MariaDB-client MariaDB-compat galera socat jemalloc python-pip python-wheel python-setuptools python-devel mysql-devel MySQL-python firewalld xinetd
-            setenforce 0
-            systemctl enable mariadb
-            systemctl start mariadb
+        script: { get_input: db_install_commands }
     relationships:
     - type: cloudify.gcp.relationships.contained_in_network
       target: private_subnet
@@ -180,7 +161,7 @@ groups:
 
   app_group:
     members:
-    - mysql
+    - database
     - host
 
 policies:

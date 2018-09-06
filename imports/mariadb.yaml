@@ -16,9 +16,26 @@ inputs:
     - { concat: [ "GRANT ALL PRIVILEGES ON *.* TO '", { get_input: new_database_user }, "'@'%' WITH GRANT OPTION" ] }
     - "FLUSH PRIVILEGES"
 
+  db_install_commands:
+    default: |
+      cat <<EOT >> /etc/yum.repos.d/mariadb.repo
+      [mariadb]
+      name = MariaDB
+      baseurl = http://yum.mariadb.org/10.1/centos7-amd64
+      gpgkey=https://yum.mariadb.org/RPM-GPG-KEY-MariaDB
+      gpgcheck=1
+      EOT
+      chown root:root /etc/yum.repos.d/mariadb.repo
+      chmod 0444 /etc/yum.repos.d/mariadb.repo
+      yum -t -y install MariaDB-server MariaDB-client MariaDB-compat galera socat jemalloc python-pip python-wheel python-setuptools python-devel mysql-devel MySQL-python firewalld xinetd
+      setenforce 0
+      systemctl enable mariadb
+      systemctl start mariadb
+
+
 node_templates:
 
-  mysql:
+  database:
     type: cloudify.nodes.DBMS
     interfaces:
       cloudify.interfaces.lifecycle:
@@ -58,4 +75,4 @@ node_templates:
       properties:
         connection_type: all_to_all
     - type: cloudify.relationships.depends_on
-      target: mysql_requirements
+      target: db_requirements

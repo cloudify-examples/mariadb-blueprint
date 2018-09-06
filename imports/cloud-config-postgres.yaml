@@ -1,0 +1,23 @@
+
+node_templates:
+
+  cloudify_host_cloud_config:
+    type: cloudify.nodes.CloudInit.CloudConfig
+    properties:
+      resource_config:
+        users:
+          - name: { get_input: agent_user }
+            primary-group: wheel
+            shell: /bin/bash
+            sudo: ['ALL=(ALL) NOPASSWD:ALL']
+            ssh-authorized-keys:
+              - { get_input: agent_key_public }
+        runcmd:
+          - curl -O https://download.postgresql.org/pub/repos/yum/10/redhat/rhel-7-x86_64/pgdg-centos10-10-2.noarch.rpm
+          - yum install pgdg-centos10-10-2.noarch.rpm epel-release -y
+          - yum update -y
+          - yum install postgresql-server postgresql-contrib -y
+          - /usr/bin/postgresql-setup initdb
+          - systemctl start postgresql
+          - systemctl enable postgresql
+          - echo "root" | passwd postgres --stdin
