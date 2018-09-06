@@ -7,8 +7,10 @@ imports:
   - http://www.getcloudify.org/spec/cloudify/4.3/types.yaml
   - plugin:cloudify-awssdk-plugin
   - plugin:cloudify-utilities-plugin
-  - imports/cloud-config.yaml
-  - imports/database.yaml
+  - imports/cloud-config-postgres.yaml
+  - imports/postgresql.yaml
+#  - imports/cloud-config.yaml
+#  - imports/mariadb.yaml
 
 inputs:
 
@@ -61,7 +63,7 @@ dsl_definitions:
 
 node_templates:
 
-  mysql_requirements:
+  db_requirements:
     type: cloudify.nodes.Root
 
   host:
@@ -260,7 +262,7 @@ groups:
 
   app_group:
     members:
-    - mysql
+    - database
     - host
     - nic
     - scale_tier
@@ -272,4 +274,3 @@ policies:
     properties:
       default_instances:  1
     targets: [app_group]
-
