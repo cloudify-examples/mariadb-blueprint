@@ -82,7 +82,7 @@ node_templates:
               userdata: { get_attribute: [ cloudify_host_cloud_config, cloud_config ] }
     relationships:
     - type: cloudify.relationships.contained_in
-      target: mysql_scale_group
+      target: database_scale_group
     - type: cloudify.openstack.server_connected_to_port
       target: port
     - type: cloudify.relationships.depends_on
@@ -118,7 +118,7 @@ node_templates:
       resource_id: { get_attribute: [ openstack, deployment, outputs, private_network ] }
     relationships:
     - type: cloudify.relationships.contained_in
-      target: mysql_scale_group
+      target: database_scale_group
 
   database_scale_group:
     type: cloudify.nodes.Root
