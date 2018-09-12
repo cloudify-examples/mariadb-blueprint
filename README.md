@@ -65,3 +65,23 @@ For example, the _openstack.yaml_ blueprint requires that you provide a value fo
 ## Uninstallation
 
 Navigate to the deployment and select `Uninstall`. When the uninstall workflow is finished, select `Delete deployment`.
+
+## Database Substitution
+
+You can modify this blueprint to support another DBMS besides MariaDB.
+
+To see an example of how to do this, make the following change to the blueprint.
+
+
+Replace the MariaDB imports with Postgres imports:
+```yaml
+  - imports/cloud-config.yaml
+  - imports/mariadb.yaml
+```
+
+```yaml
+#  - imports/cloud-config.yaml
+#  - imports/mariadb.yaml
+  - imports/cloud-config-postgres.yaml
+  - imports/postgresql.yaml
+```

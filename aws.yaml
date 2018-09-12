@@ -7,10 +7,8 @@ imports:
   - http://www.getcloudify.org/spec/cloudify/4.3/types.yaml
   - plugin:cloudify-awssdk-plugin
   - plugin:cloudify-utilities-plugin
-  - imports/cloud-config-postgres.yaml
-  - imports/postgresql.yaml
-#  - imports/cloud-config.yaml
-#  - imports/mariadb.yaml
+  - imports/cloud-config.yaml
+  - imports/mariadb.yaml
 
 inputs:
 
