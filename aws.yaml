@@ -46,6 +46,9 @@ inputs:
   use_existing_network_deployment:
     default: true
 
+  centos_image_name_filter:
+    default: 'CentOS 7.6.1810 x86_64 with cloud-init (HVM)'
+
 dsl_definitions:
 
   aws_config: &aws_config
@@ -132,7 +135,7 @@ node_templates:
           Filters:
           - Name: name
             Values:
-            - 'CentOS 7.3.1611 x86_64 with cloud-init (HVM)'
+            - { get_input: centos_image_name_filter }
           - Name: owner-id
             Values:
             - '057448758665'
