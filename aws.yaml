@@ -4,7 +4,7 @@ description: >
   This blueprint creates a MariaDB Cluster.
 
 imports:
-  - http://www.getcloudify.org/spec/cloudify/4.3/types.yaml
+  - http://www.getcloudify.org/spec/cloudify/4.5/types.yaml
   - plugin:cloudify-awssdk-plugin
   - plugin:cloudify-utilities-plugin
   - imports/cloud-config.yaml
